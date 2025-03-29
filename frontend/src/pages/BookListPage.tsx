@@ -31,7 +31,7 @@ function BookListPage () {
           </div>
 
           {/* Main content area for displaying books: 9 columns wide */}
-          <div className='col-md-9'>
+          <div className='col-md-9 books-list-container'>
             <BooksList selectedCategories={selectedCategories} />
           </div>
 
