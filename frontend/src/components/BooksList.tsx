@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Book } from '../types/Book.ts';
 import './BooksList.css'; // Import external CSS for styling
+import { useNavigate } from 'react-router-dom';
 
-const BooksList = () => {
+const BooksList = ({selectedCategories}: {selectedCategories: string[]}) => {
   // State variables for storing book data, pagination, and sorting
   const [books, setBooks] = useState<Book[]>([]); // Stores the list of books
   const [loading, setLoading] = useState(true); // Tracks if data is still loading
@@ -11,22 +12,32 @@ const BooksList = () => {
   const [totalItems, setTotalItems] = useState<number>(0); // Total number of books (for pagination)
   const [totalPages, setTotalPages] = useState<number>(0); // Total number of pages
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // Controls sorting order (ascending or descending)
+  const navigate = useNavigate();
+  
 
   // Fetches books from the backend when page number, page size, or sort order changes
   useEffect(() => {
     const fetchBooks = async () => {
+
+      const categoryParams = selectedCategories.map((cat) => `bookCategories=${encodeURIComponent(cat)}`).join('&')
+
         const response = await fetch(
-            `https://localhost:5000/Books/AllBooks?pageSize=${pageSize}&pageNum=${pageNum}&sortOrder=${sortOrder}`
+            `https://localhost:5000/Books/AllBooks?pageSize=${pageSize}&pageNum=${pageNum}&sortOrder=${sortOrder}${selectedCategories.length ? `&${categoryParams}` : ''}`,
         );
         const data = await response.json();
         setBooks(data.books); // Updates books state with the fetched data
         setLoading(false); // Data is loaded, so stop showing "Loading..."
         setTotalItems(data.totalNumBooks); // Updates total book count
-        setTotalPages(Math.ceil(totalItems / pageSize)); // Calculates the number of pages
+        setTotalPages(Math.ceil(data.totalNumBooks / pageSize)); // Calculates the number of pages
     };
 
     fetchBooks();
-  }, [pageSize, pageNum, totalItems, sortOrder]); // Dependencies trigger a re-fetch when changed
+  }, [pageSize, pageNum, totalItems, sortOrder, selectedCategories]); // Dependencies trigger a re-fetch when changed
+
+  // Goes back to page 1 when the user selects a filter
+  useEffect(() => {
+    setPageNum(1);
+  }, [selectedCategories]);
 
   // If data is still loading, display a loading message
   if (loading) return <p>Loading books...</p>;
@@ -37,48 +48,61 @@ const BooksList = () => {
   };
 
   return (
-    <div className="container mt-4">
-      {/* Table displaying book information */}
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Publisher</th>
-            <th>ISBN</th>
-            <th>Classification</th>
-            <th>Category</th>
-            <th>Pages</th>
-            <th>Price ($)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {books.map((book) => (
-            <tr key={book.bookId}>
-              <td>{book.title}</td>
-              <td>{book.author}</td>
-              <td>{book.publisher}</td>
-              <td>{book.isbn}</td>
-              <td>{book.classification}</td>
-              <td>{book.category}</td>
-              <td>{book.pageCount}</td>
-              <td>{book.price}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        <>
+          {books.map((b) => (
+            <div id='bookCard' className='card' key={b.bookId}>
+                <h3 className='card-title'>{b.title}</h3>
+                <div className='card-body'>
+                    <ul className='list-unstyled'>
+                        <li><strong>Title: </strong>{b.title}</li>
+                        <li><strong>Author: </strong>{b.author}</li>
+                        <li><strong>Publisher: </strong>{b.publisher} Individuals Served</li>
+                        <li><strong>ISBN: </strong>{b.isbn}</li>
+                        <li><strong>Category: </strong>{b.category}</li>
+                        <li><strong>Classification: </strong>{b.classification}</li>
+                        <li><strong>Pages: </strong>{b.pageCount}</li>
+                        <li><strong>Price ($): </strong>{b.price}</li>
+                    </ul>
+
+                    <button className='btn btn-success' onClick={() => navigate(`/purchase/${b.title}/${b.price}/${b.bookId}`)}>Purchase</button>
+                </div>
+            </div>
+            ))}
 
       {/* Pagination Controls */}
-      <button disabled={pageNum === 1} onClick={() => setPageNum(pageNum - 1)}>Previous</button>
+      <nav aria-label="Book pagination">
+        <ul className="pagination justify-content-center mt-4">
 
-      {/* Generate pagination buttons dynamically */}
-      {[...Array(totalPages)].map((_, i) => (
-        <button key={i + 1} onClick={() => setPageNum(i + 1)} disabled={pageNum === (i + 1)}>
-          {i + 1}
-        </button>
-      ))}
+          {/* Previous Button */}
+          <li className={`page-item ${pageNum === 1 ? 'disabled' : ''}`}>
+            <button className="page-link" onClick={() => setPageNum(pageNum - 1)}>
+              Previous
+            </button>
+          </li>
 
-      <button disabled={pageNum === totalPages} onClick={() => setPageNum(pageNum + 1)}>Next</button>
+          {/* Page Number Buttons */}
+          {[...Array(totalPages)].map((_, i) => (
+            <li
+              key={i + 1}
+              className={`page-item ${pageNum === i + 1 ? 'active' : ''}`}
+            >
+              <button
+                className="page-link"
+                onClick={() => setPageNum(i + 1)}
+              >
+                {i + 1}
+              </button>
+            </li>
+          ))}
+
+          {/* Next Button */}
+          <li className={`page-item ${pageNum === totalPages ? 'disabled' : ''}`}>
+            <button className="page-link" onClick={() => setPageNum(pageNum + 1)}>
+              Next
+            </button>
+          </li>
+        </ul>
+      </nav>
 
       {/* Button to toggle sorting */}
       <button className="btn btn-primary" onClick={handleSort}>
@@ -98,7 +122,7 @@ const BooksList = () => {
           </select>
         </label>
       </div>
-    </div>
+    </>
   );
 };
 
