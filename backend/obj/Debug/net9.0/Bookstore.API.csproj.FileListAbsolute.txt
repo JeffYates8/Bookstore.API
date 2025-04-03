@@ -314,3 +314,4 @@ C:\Users\yates\source\repos\Bookstore.API\backend\obj\Debug\net9.0\refint\Bookst
 C:\Users\yates\source\repos\Bookstore.API\backend\obj\Debug\net9.0\Bookstore.API.pdb
 C:\Users\yates\source\repos\Bookstore.API\backend\obj\Debug\net9.0\Bookstore.API.genruntimeconfig.cache
 C:\Users\yates\source\repos\Bookstore.API\backend\obj\Debug\net9.0\ref\Bookstore.API.dll
+C:\Users\yates\source\repos\Bookstore.API\backend\bin\Debug\net9.0\Bookstore.sqlite

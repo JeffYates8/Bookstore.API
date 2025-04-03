@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "undefined/subscriptions/c361dab4-76c0-4861-a4d6-1a099cbedc3b/resourceGroups/appsvc_windows_eastus/providers/Microsoft.Web/sites/Bookstore-Yates-Backend",
+    "appService.deploySubpath": "backend\\publish"
+}
