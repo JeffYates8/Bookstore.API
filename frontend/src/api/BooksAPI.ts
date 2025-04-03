@@ -5,7 +5,7 @@ interface FetchBooksResponse {
   totalNumBooks: number;
 }
 
-const API_URL = 'https://bookstore-yates-backend-g7ebatbedwd6dwba.eastus-01.azurewebsites.net/Books';
+const API_URL = 'https://bookstoreapi-yates-backend-ebcffdg8hnfwd4g2.eastus-01.azurewebsites.net/Books';
 
 export const fetchBooks = async (
   pageSize: number,
